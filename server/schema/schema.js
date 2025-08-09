@@ -5,6 +5,7 @@ const {
   GraphQLID,
   GraphQLInt,
   GraphQLList,
+  GraphQLNonNull,
 } = require("graphql");
 const _ = require("lodash");
 const Book = require("../models/book");
@@ -95,8 +96,8 @@ const Mutation = new GraphQLObjectType({
         addAuthor: {
             type: AuthorType,
             args: {
-                name: { type: GraphQLString },
-                age: { type: GraphQLInt },
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                age: { type: new GraphQLNonNull(GraphQLInt) },
             },
             resolve: (parent, args) => {
                 let author = new Author(
@@ -111,9 +112,9 @@ const Mutation = new GraphQLObjectType({
         addBook: {
             type: BookType,
             args: {
-                name: { type: GraphQLString },
-                genre: { type: GraphQLString },
-                authorId: { type: GraphQLID },
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                genre: { type: new GraphQLNonNull(GraphQLString) },
+                authorId: { type: new GraphQLNonNull(GraphQLID) },
             },
             resolve: (parent, args) => {
                 let book = new Book(
@@ -128,28 +129,28 @@ const Mutation = new GraphQLObjectType({
         },
         deleteAuthor: {
             type: AuthorType,
-            args: { id: { type: GraphQLID } },
+            args: { id: { type: new GraphQLNonNull(GraphQLID) } },
             resolve: (parent, args) => {
                 return Author.findByIdAndDelete(args.id);
             }
         },
         deleteBook: {
             type: BookType,
-            args: { id: { type: GraphQLID } },
+            args: { id: { type: new GraphQLNonNull(GraphQLID) } },
             resolve: (parent, args) => {
                 return Book.findByIdAndDelete(args.id);
             }
         },
         updateAuthor: {
             type: AuthorType,
-            args: { id: { type: GraphQLID }, name: { type: GraphQLString }, age: { type: GraphQLInt } },
+            args: { id: { type: new GraphQLNonNull(GraphQLID) }, name: { type: new GraphQLNonNull(GraphQLString) }, age: { type: new GraphQLNonNull(GraphQLInt) } },
             resolve: (parent, args) => {
                 return Author.findByIdAndUpdate(args.id, { name: args.name, age: args.age }, { new: true });
             }
         },
         updateBook: {
             type: BookType,
-            args: { id: { type: GraphQLID }, name: { type: GraphQLString }, genre: { type: GraphQLString } },
+            args: { id: { type: new GraphQLNonNull(GraphQLID) }, name: { type: new GraphQLNonNull(GraphQLString) }, genre: { type: new GraphQLNonNull(GraphQLString) } },
             resolve: (parent, args) => {
                 return Book.findByIdAndUpdate(args.id, { name: args.name, genre: args.genre }, { new: true });
             }

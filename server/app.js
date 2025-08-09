@@ -4,6 +4,7 @@ const schema = require("./schema/schema")
 const mongoose = require("mongoose");
 const { MongoClient } = require("mongodb");
 const dotenv = require("dotenv");
+const cors = require("cors");
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ mongoose.connection.once("open", () => {
 
 
 const app = express();
+
+app.use(cors());
 
 /**
  * GraphQL Middleware
