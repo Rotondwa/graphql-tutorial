@@ -1,45 +1,40 @@
 const express = require("express");
-const { graphqlHTTP } = require("express-graphql")
-const schema = require("./schema/schema")
+const { graphqlHTTP } = require("express-graphql");
+const schema = require("./schema/schema");
 const mongoose = require("mongoose");
-const { MongoClient } = require("mongodb");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
 dotenv.config();
 
-// connect to mongodb
-const DatabaseURL = process.env.DATABASE_URL;
-mongoose.connect(DatabaseURL);
-
-// check if the connection is open if not then show error
-
-mongoose.connection.once("open", () => {
-    console.log("Mongoose connected to MongoDB successfully");
-});
-
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  console.error("Missing DATABASE_URL environment variable");
+  process.exit(1);
+}
 
 const app = express();
-
 app.use(cors());
 
-/**
- * GraphQL Middleware
- * This is the endpoint for the GraphQL API
- * graphqlHTTP is a middleware that allows us to use GraphQL with Express
- * schema is the schema of the GraphQL API
- * graphiql is a tool that allows us to test the GraphQL API
- * graphiql: true is a configuration option that allows us to use the GraphiQL tool to test the GraphQL API
- */
-app.use('/graphql', graphqlHTTP({
-    schema,
-    graphiql: true
-}));
-
-// Serve
-app.listen(3000, () =>
-{
-    console.log("Server is running on port 3000");
-});
+mongoose
+  .connect(databaseUrl)
+  .then(() => {
+    console.log("Mongoose connected to MongoDB successfully");
+    app.use(
+      "/graphql",
+      graphqlHTTP({
+        schema,
+        graphiql: process.env.NODE_ENV !== "production",
+      })
+    );
+    const port = process.env.PORT ? Number(process.env.PORT) : 4000;
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Mongoose connection error:", error);
+    process.exit(1);
+  });
 
 module.exports = app;
